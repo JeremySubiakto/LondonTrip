@@ -173,6 +173,40 @@ footer{ text-align:center; padding:40px 22px 24px; }
 footer .heart{ font-size:22px; color:var(--rose); }
 footer .line{ font-family:var(--serif); font-style:italic; font-size:24px; color:var(--deep-rose); margin-top:14px; }
 footer .small{ font-size:12px; color:var(--muted); margin-top:8px; letter-spacing:0.04em; }
+
+/* ---- flags ---- */
+.flag{ display:inline-flex; width:20px; height:13px; border-radius:3px; overflow:hidden; box-shadow:0 1px 3px rgba(0,0,0,.18); vertical-align:middle; flex:0 0 auto; }
+.flag svg{ width:100%; height:100%; display:block; }
+.nav button .flag{ width:17px; height:11px; margin-right:5px; }
+.city-row{ display:inline-flex; align-items:center; gap:13px; justify-content:center; }
+.city-row .flag{ width:36px; height:24px; border-radius:5px; box-shadow:0 2px 8px rgba(176,127,122,.25); }
+
+/* ---- per-city doodle ---- */
+.city-head .doodle{ width:100%; max-width:380px; margin:0 auto 4px; }
+.city-head .doodle svg{ width:100%; height:auto; display:block; overflow:visible; }
+@media (prefers-reduced-motion: no-preference){ .view.content.active .city-head .doodle{ animation:doodleIn .8s cubic-bezier(.2,.8,.2,1) both; } }
+@keyframes doodleIn{ from{ opacity:0; transform:translateY(10px) scale(.97);} to{ opacity:1; transform:none;} }
+
+/* ---- map city toggle: distinct GOLD accent (vs blush destination nav) ---- */
+#mapToggle button.active{ background:linear-gradient(180deg,#E7C98F,var(--gold)); color:#4a3a1c; box-shadow:0 4px 12px rgba(201,169,110,0.32); }
+
+/* ---- clickable neighbourhood chips ---- */
+.hoods .hood-chip{ font-family:var(--sans); cursor:pointer; display:inline-flex; align-items:center; gap:6px; transition:background .2s,color .2s,transform .2s,box-shadow .2s; }
+.hoods button.hood-chip::before{ content:""; width:5px; height:5px; border-radius:50%; background:var(--rose); display:inline-block; }
+.hoods button.hood-chip:hover{ background:var(--blush); color:var(--ink); transform:translateY(-1px); box-shadow:0 4px 12px rgba(176,127,122,.2); }
+
+/* ---- filter chips ---- */
+.filterbar{ display:flex; flex-wrap:wrap; gap:7px; margin-bottom:20px; }
+.filterbar button{ font-family:var(--sans); font-weight:600; font-size:11.5px; letter-spacing:.02em; color:var(--deep-rose); background:var(--surface); border:1px solid rgba(232,197,193,0.6); padding:7px 13px; border-radius:var(--r-pill); cursor:pointer; transition:background .2s,color .2s,transform .2s,box-shadow .2s; }
+.filterbar button:hover{ transform:translateY(-1px); }
+.filterbar button.active{ background:var(--blush); color:var(--ink); border-color:transparent; box-shadow:0 3px 10px rgba(176,127,122,.2); }
+.filterbar button.gold.active{ background:linear-gradient(180deg,#E7C98F,var(--gold)); color:#4a3a1c; }
+
+/* ---- open-our-trip button sheen ---- */
+.btn{ position:relative; overflow:hidden; }
+.btn::after{ content:""; position:absolute; top:0; bottom:0; left:-70%; width:45%; background:linear-gradient(100deg, transparent, rgba(255,255,255,.6), transparent); transform:skewX(-18deg); animation:sheen 4.8s ease-in-out infinite; pointer-events:none; }
+@keyframes sheen{ 0%{ left:-70%; } 22%,100%{ left:130%; } }
+@media (prefers-reduced-motion: reduce){ .btn::after{ display:none; } }
 </style>
 </head>
 <body>
@@ -251,6 +285,67 @@ const CAT_META = {
   pubs:       { label:"Pubs & Bars",  emoji:"🍺" },
   landmarks:  { label:"Landmarks",    emoji:"🏛" },
   parks:      { label:"Parks",        emoji:"🌳" },
+};
+
+/* country per destination → flag */
+const COUNTRY = { london:"england", hampstead:"england", bath:"england", wales:"wales", scotland:"scotland" };
+const FLAG = {
+  england:`<svg viewBox="0 0 30 20" preserveAspectRatio="none"><rect width="30" height="20" fill="#fff"/><rect x="12.5" width="5" height="20" fill="#CF142B"/><rect y="7.5" width="30" height="5" fill="#CF142B"/></svg>`,
+  scotland:`<svg viewBox="0 0 30 20" preserveAspectRatio="none"><rect width="30" height="20" fill="#0065BD"/><path d="M0 0 L30 20 M30 0 L0 20" stroke="#fff" stroke-width="4.5"/></svg>`,
+  wales:`<svg viewBox="0 0 30 20" preserveAspectRatio="none"><rect width="30" height="10" fill="#fff"/><rect y="10" width="30" height="10" fill="#00803D"/><path d="M8.5 11 q3 -5.5 8.5 -4.3 q-2.2 1.5 -1 3.6 q2.6 -1.1 4.8 .6 q-2.2 .8 -2.7 2.7 q-.7 2.6 -3.9 2.6 q-4.3 0 -5.3 -3.2 q-1.7 .7 -2.6 -1 q1.9 0 3.2 -1.4 Z" fill="#D7443B"/></svg>`,
+};
+function flagHTML(country){ return `<span class="flag">${FLAG[country]||""}</span>`; }
+
+/* neighbourhood-chip → fly-to coordinates on the map */
+const HOOD_COORDS = {
+  "Mayfair":{lat:51.5096,lng:-0.1476,zoom:15}, "Notting Hill":{lat:51.5090,lng:-0.2050,zoom:15},
+  "Chelsea":{lat:51.4870,lng:-0.1690,zoom:15}, "South Kensington":{lat:51.4940,lng:-0.1730,zoom:15},
+  "Bankside":{lat:51.5075,lng:-0.0960,zoom:15}, "London Bridge":{lat:51.5050,lng:-0.0870,zoom:15},
+  "Covent Garden":{lat:51.5120,lng:-0.1230,zoom:16}, "Marylebone":{lat:51.5180,lng:-0.1500,zoom:15},
+  "Farringdon":{lat:51.5200,lng:-0.1050,zoom:15},
+  "Hampstead Village":{lat:51.5560,lng:-0.1780,zoom:15}, "Hampstead Heath":{lat:51.5630,lng:-0.1660,zoom:14},
+  "Highgate":{lat:51.5710,lng:-0.1460,zoom:15}, "Kenwood":{lat:51.5715,lng:-0.1680,zoom:15},
+  "City Centre":{lat:51.3810,lng:-2.3590,zoom:15}, "Royal Crescent":{lat:51.3870,lng:-2.3700,zoom:16},
+  "Pulteney":{lat:51.3835,lng:-2.3560,zoom:16}, "Widcombe":{lat:51.3760,lng:-2.3520,zoom:15},
+  "Cardiff":{lat:51.4837,lng:-3.1681,zoom:13}, "Cardiff Bay":{lat:51.4630,lng:-3.1660,zoom:14},
+  "Snowdonia / Eryri":{lat:53.0685,lng:-4.0760,zoom:10}, "Conwy":{lat:53.2800,lng:-3.8260,zoom:14},
+  "Llandudno":{lat:53.3240,lng:-3.8270,zoom:13}, "Portmeirion":{lat:52.9130,lng:-4.0980,zoom:15},
+  "Edinburgh Old Town":{lat:55.9486,lng:-3.1890,zoom:15}, "Edinburgh New Town":{lat:55.9540,lng:-3.1960,zoom:15},
+  "Glasgow West End":{lat:55.8720,lng:-4.2890,zoom:14}, "Isle of Skye":{lat:57.4140,lng:-6.2000,zoom:9},
+  "The Highlands":{lat:57.0000,lng:-4.8000,zoom:7},
+};
+
+/* per-city hand-drawn doodles (original SVG; swap for your own art via DEST_META[dest].image) */
+const DOODLE = {
+  london:`<svg viewBox="0 0 360 140" xmlns="http://www.w3.org/2000/svg"><g stroke="#8a5d57" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round">
+    <path d="M14 122 H346" stroke="#C9A96E" stroke-width="2"/>
+    <rect x="166" y="46" width="30" height="76" fill="#F2E6D4"/><rect x="170" y="58" width="22" height="18" fill="#fff"/><circle cx="181" cy="67" r="6" fill="#F4D27A"/><path d="M166 46 L181 24 L196 46 Z" fill="#D9A8A2"/><path d="M181 24 V14"/>
+    <rect x="58" y="70" width="34" height="52" rx="3" fill="#D7443B"/><rect x="64" y="78" width="22" height="30" rx="2" fill="#F7D9D5"/><rect x="62" y="62" width="26" height="8" rx="2" fill="#D7443B"/>
+    <rect x="250" y="84" width="80" height="38" rx="6" fill="#D7443B"/><rect x="256" y="90" width="14" height="12" rx="2" fill="#F7D9D5"/><rect x="276" y="90" width="14" height="12" rx="2" fill="#F7D9D5"/><rect x="296" y="90" width="14" height="12" rx="2" fill="#F7D9D5"/><circle cx="266" cy="124" r="6" fill="#3a2f2e"/><circle cx="314" cy="124" r="6" fill="#3a2f2e"/>
+    <circle cx="306" cy="34" r="14" fill="#E8C5C1"/><path d="M300 46 L306 54 L312 46" fill="#F7D9D5"/></g></svg>`,
+  hampstead:`<svg viewBox="0 0 360 140" xmlns="http://www.w3.org/2000/svg"><g stroke="#8a5d57" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round">
+    <path d="M14 120 Q120 98 210 116 T346 112" fill="none" stroke="#8FB46A"/>
+    <rect x="92" y="80" width="9" height="40" fill="#B08968"/><circle cx="96" cy="60" r="26" fill="#9FBE73"/><circle cx="74" cy="74" r="16" fill="#9FBE73"/><circle cx="118" cy="74" r="16" fill="#9FBE73"/>
+    <ellipse cx="262" cy="112" rx="48" ry="12" fill="#CFE3EA" stroke-width="2"/>
+    <g stroke-width="2"><ellipse cx="168" cy="108" rx="22" ry="13" fill="#fff"/><circle cx="150" cy="100" r="10" fill="#fff"/><path d="M144 92 l-3 -8 l7 4 Z" fill="#fff"/><path d="M156 92 l3 -8 l-7 4 Z" fill="#fff"/><path d="M186 104 l8 -3"/><path d="M158 121 v6 M170 121 v6 M180 117 v6"/></g>
+    <circle cx="147" cy="100" r="1.6" fill="#3a2f2e" stroke="none"/></g></svg>`,
+  bath:`<svg viewBox="0 0 360 140" xmlns="http://www.w3.org/2000/svg"><g stroke="#8a5d57" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round">
+    <path d="M14 122 H346" stroke="#C9A96E" stroke-width="2"/>
+    <circle cx="306" cy="40" r="15" fill="#F4D27A"/>
+    <g stroke-width="2"><path d="M48 96 Q180 58 312 96" fill="none"/><path d="M48 116 Q180 78 312 116" fill="none"/><path d="M82 92 V112 M118 84 V106 M158 79 V101 M200 77 V99 M242 80 V102 M278 86 V108"/></g>
+    <rect x="36" y="92" width="13" height="30" fill="#F0E0CC"/><rect x="31" y="85" width="23" height="8" fill="#E6C9A8"/></g></svg>`,
+  wales:`<svg viewBox="0 0 360 140" xmlns="http://www.w3.org/2000/svg"><g stroke="#8a5d57" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round">
+    <path d="M14 122 H346" stroke="#8FB46A" stroke-width="2"/>
+    <path d="M40 122 L120 50 L200 122 Z" fill="#BFA98C"/><path d="M101 73 L120 50 L139 73 L128 79 L120 71 L112 79 Z" fill="#fff" stroke="none"/>
+    <rect x="226" y="72" width="38" height="50" fill="#E6D2B8"/><path d="M226 72 v-8 h7 v6 h6 v-6 h6 v6 h6 v-6 h7 v8" fill="#E6D2B8"/><rect x="238" y="88" width="14" height="34" fill="#C9A96E"/>
+    <path d="M286 98 q12 -16 28 -11 q-3 6 1 9 q6 -3 11 1 q-5 3 -5 8 q-1 8 -12 8 q-15 0 -17 -10 q-7 2 -9 -4 q7 0 12 -5 Z" fill="#D7443B" stroke-width="1.5"/></g></svg>`,
+  scotland:`<svg viewBox="0 0 360 140" xmlns="http://www.w3.org/2000/svg"><g stroke="#8a5d57" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round">
+    <path d="M14 122 Q100 104 190 120 T346 116" fill="none" stroke="#8FB46A" stroke-width="2"/>
+    <path d="M60 122 L82 96 L150 90 L208 100 L224 122 Z" fill="#BFA98C"/>
+    <g fill="#E6D2B8"><rect x="96" y="64" width="84" height="30"/><path d="M96 64 v-7 h8 v5 h9 v-5 h8 v5 h9 v-5 h8 v5 h9 v-5 h8 v5 h8 v-5 h8 v7"/><rect x="122" y="48" width="22" height="16"/><path d="M122 48 v-6 h5 v4 h6 v-4 h6 v4 h5 v-4 v6"/></g>
+    <path d="M150 64 V40"/><path d="M150 40 l16 5 l-16 6 Z" fill="#D7443B" stroke-width="1.5"/>
+    <path d="M300 122 V84" stroke="#5a7a4a"/><path d="M300 102 q-13 -2 -17 -13 M300 102 q13 -2 17 -13" stroke="#5a7a4a"/>
+    <path d="M289 82 q11 -17 22 0 q-11 6 -22 0 Z" fill="#B07F9A" stroke-width="1.5"/><path d="M293 82 q7 -10 14 0" fill="#C99AB5" stroke="none"/></g></svg>`,
 };
 
 /* ============================================================
@@ -547,11 +642,6 @@ const PLACES = [
     mustTry:"Matcha latte · yuzu madeleine", walkIn:"Walk-in: yes",
     summary:"Maison Kitsuné's chic Belgravia café — French patisserie with a Japanese accent and a very good matcha latte. Tiny, stylish, and extremely her aesthetic.",
     tags:["chic","Parisian-Japanese","pastries"] },
-
-  { id:"wa-cafe", dest:"london", cat:"matcha", name:"WA Café", hood:"multiple branches", price:2,
-    mustTry:"Matcha roll cake · matcha croissant", walkIn:"Walk-in: yes",
-    summary:"A Japanese café-patisserie known for matcha bakes — soft matcha roll cakes and laminated matcha croissants. Sweet, comforting, great for a takeaway treat.",
-    tags:["patisserie","bakes","cosy"] },
 
   /* ---------- LONDON · PUBS & BARS (more) ---------- */
   { id:"connaught-bar", dest:"london", cat:"pubs", name:"Connaught Bar", hood:"Carlos Place, Mayfair", price:4, walkIn:"Walk-in welcome early; busy later",
@@ -1115,8 +1205,13 @@ function cardHTML(p){
     : (p.price ? `<div class="thumb-chip">${priceMarkup(p.price)}</div>` : "");
   const cuisine = p.cuisine ? `<p class="cuisine">${p.cuisine}</p>` : "";
   const tags = (p.tags||[]).slice(0,3).map(t=>`<span class="tag">${t}</span>`).join("");
+  const tg = (p.tags||[]).map(t=>t.toLowerCase());
+  const fMich = tg.some(t=>t.includes("michelin")) ? 1 : 0;
+  const fAward = tg.some(t=>t.includes("award")) ? 1 : 0;
+  const fHidden = (p.badge==="hidden gem" || tg.includes("hidden gem")) ? 1 : 0;
+  const fFree = (p.entry && p.entry.startsWith("free")) ? 1 : 0;
   return `
-  <article class="card${feature}" data-id="${p.id}" tabindex="0" role="button" aria-label="${p.name} — view details">
+  <article class="card${feature}" data-id="${p.id}" data-price="${p.price||""}" data-mich="${fMich}" data-award="${fAward}" data-hidden="${fHidden}" data-free="${fFree}" tabindex="0" role="button" aria-label="${p.name} — view details">
     <div class="thumb" data-base="${p.cat}">
       <span class="thumb-emoji" aria-hidden="true">${emoji}</span>
       ${badge}${chip}
@@ -1132,6 +1227,32 @@ function cardHTML(p){
   </article>`;
 }
 
+/* ---------- filter chips ---------- */
+const tagHas = (p,s)=>(p.tags||[]).some(t=>t.toLowerCase().includes(s));
+function filterBarHTML(places){
+  const some = (fn)=>places.some(fn);
+  const chips = [`<button class="active" data-f="all">All</button>`];
+  if(some(p=>tagHas(p,"michelin"))) chips.push(`<button class="gold" data-f="mich">★ Michelin</button>`);
+  if(some(p=>tagHas(p,"award"))) chips.push(`<button data-f="award">Award-winning</button>`);
+  if(some(p=>p.badge==="hidden gem"||tagHas(p,"hidden gem"))) chips.push(`<button data-f="hidden">Hidden gem</button>`);
+  [1,2,3,4].forEach(n=>{ if(some(p=>p.price===n)) chips.push(`<button data-f="p${n}">${"$".repeat(n)}</button>`); });
+  if(some(p=>p.entry&&p.entry.startsWith("free"))) chips.push(`<button data-f="free">Free entry</button>`);
+  return chips.length>1 ? `<div class="filterbar">${chips.join("")}</div>` : "";
+}
+function matchFilter(card,f){
+  if(f==="all") return true;
+  if(f==="mich") return card.dataset.mich==="1";
+  if(f==="award") return card.dataset.award==="1";
+  if(f==="hidden") return card.dataset.hidden==="1";
+  if(f==="free") return card.dataset.free==="1";
+  if(f[0]==="p") return card.dataset.price===f.slice(1);
+  return true;
+}
+const TRAIN_HTML = `<div class="train"><div class="route"><span class="stop">London King's Cross</span><span class="dash"></span><span class="stop">Edinburgh Waverley</span></div>
+  <div class="facts"><div class="fact"><span class="label">Operator</span><span class="val">LNER · lner.co.uk</span></div><div class="fact"><span class="label">Duration</span><span class="val">~4.5 hours</span></div><div class="fact"><span class="label">Advance from</span><span class="val">~£30–40</span></div></div>
+  <p class="note">Getting north: book in advance for cheap seats and grab a table seat — watch the North Yorkshire coast slide by.</p>
+  <div class="modal-actions" style="margin-top:2px;"><a class="chip-link solid" href="https://www.lner.co.uk" target="_blank" rel="noopener">Book on LNER ↗</a></div></div>`;
+
 /* ---------- build destination views dynamically ---------- */
 const destRoot = document.getElementById("destinations");
 DEST_ORDER.forEach(dest=>{
@@ -1139,22 +1260,18 @@ DEST_ORDER.forEach(dest=>{
   const meta = DEST_META[dest];
   const sec = document.createElement("section");
   sec.className = "view content"; sec.dataset.view = dest;
-  let html = `<div class="wrap"><div class="city-head"><div class="city serif">${meta.name}</div><div class="sub">${meta.tag}</div></div>`;
+  const doodle = meta.image ? `<img src="${meta.image}" alt="${meta.name}">` : (DOODLE[dest]||"");
+  let html = `<div class="wrap"><div class="city-head">
+      <div class="doodle">${doodle}</div>
+      <div class="city-row">${flagHTML(COUNTRY[dest])}<div class="city serif">${meta.name}</div></div>
+      <div class="sub">${meta.tag}</div></div>`;
   html += `<div class="toggle" role="tablist">` +
     cats.map((c,i)=>`<button class="${i===0?"active":""}" data-cat="${c}">${CAT_META[c].emoji} ${CAT_META[c].label}</button>`).join("") + `</div>`;
-  if(dest==="scotland"){
-    html += `<div class="cat-panel" data-cat="__train" style="display:none"></div>`;
-  }
   html += cats.map((c,i)=>{
-    const cards = PLACES.filter(p=>p.dest===dest && p.cat===c).map(cardHTML).join("");
-    let extra = "";
-    if(dest==="scotland" && c==="restaurants"){
-      extra = `<div class="train"><div class="route"><span class="stop">London King's Cross</span><span class="dash"></span><span class="stop">Edinburgh Waverley</span></div>
-        <div class="facts"><div class="fact"><span class="label">Operator</span><span class="val">LNER · lner.co.uk</span></div><div class="fact"><span class="label">Duration</span><span class="val">~4.5 hours</span></div><div class="fact"><span class="label">Advance from</span><span class="val">~£30–40</span></div></div>
-        <p class="note">Getting north: book in advance for cheap seats and grab a table seat — watch the North Yorkshire coast slide by.</p>
-        <div class="modal-actions" style="margin-top:2px;"><a class="chip-link solid" href="https://www.lner.co.uk" target="_blank" rel="noopener">Book on LNER ↗</a></div></div>`;
-    }
-    return `<div class="cat-panel ${i===0?"active":""}" data-cat="${c}">${extra}<div class="grid">${cards}</div></div>`;
+    const places = PLACES.filter(p=>p.dest===dest && p.cat===c);
+    const cards = places.map(cardHTML).join("");
+    const extra = (dest==="scotland" && c==="restaurants") ? TRAIN_HTML : "";
+    return `<div class="cat-panel ${i===0?"active":""}" data-cat="${c}">${extra}${filterBarHTML(places)}<div class="grid">${cards}</div></div>`;
   }).join("");
   html += `</div>`;
   sec.innerHTML = html;
@@ -1168,6 +1285,19 @@ DEST_ORDER.forEach(dest=>{
       toggle.querySelectorAll("button").forEach(x=>x.classList.remove("active"));
       b.classList.add("active");
       panels.forEach(pl=>pl.classList.toggle("active", pl.dataset.cat===b.dataset.cat));
+    });
+  });
+  // filter wiring
+  panels.forEach(panel=>{
+    const fb = panel.querySelector(".filterbar"); if(!fb) return;
+    const grid = panel.querySelector(".grid");
+    fb.querySelectorAll("button").forEach(btn=>{
+      btn.addEventListener("click",()=>{
+        fb.querySelectorAll("button").forEach(x=>x.classList.remove("active"));
+        btn.classList.add("active");
+        const f = btn.dataset.f;
+        grid.querySelectorAll(".card").forEach(card=>{ card.style.display = matchFilter(card,f) ? "" : "none"; });
+      });
     });
   });
 });
@@ -1262,6 +1392,7 @@ document.addEventListener("keydown", e=>{ if(e.key==="Escape" && modal.classList
 /* ---------- view switching ---------- */
 const nav = document.getElementById("nav");
 const navBtns = [...nav.querySelectorAll("button")];
+navBtns.forEach(b=>{ const d=b.dataset.view; if(COUNTRY[d]) b.insertAdjacentHTML("afterbegin", flagHTML(COUNTRY[d])); });
 let currentView = "hero";
 function showView(name){
   const target = document.querySelector(`.view[data-view="${name}"]`);
@@ -1314,10 +1445,19 @@ const CITY_VIEW = {
 };
 function setCity(dest){
   currentDest = dest;
-  hoodsEl.innerHTML = (HOODS[dest]||[]).map(h=>`<span class="hood-chip">${h}</span>`).join("");
+  hoodsEl.innerHTML = (HOODS[dest]||[]).map(h=>{
+    const c = HOOD_COORDS[h];
+    return c ? `<button class="hood-chip" data-lat="${c.lat}" data-lng="${c.lng}" data-zoom="${c.zoom}" title="Zoom to ${h}">${h}</button>` : `<span class="hood-chip">${h}</span>`;
+  }).join("");
   if(gmap){ gmap.panTo(CITY_VIEW[dest].center); gmap.setZoom(CITY_VIEW[dest].zoom); }
   else { mapFallback.src = `https://www.google.com/maps?q=${CITY_VIEW[dest].embed}&output=embed`; }
 }
+hoodsEl.addEventListener("click", e=>{
+  const b = e.target.closest("button.hood-chip"); if(!b) return;
+  const lat=+b.dataset.lat, lng=+b.dataset.lng, z=+b.dataset.zoom;
+  if(gmap){ gmap.panTo({lat,lng}); gmap.setZoom(z); }
+  else { mapFallback.src = `https://www.google.com/maps?q=${lat},${lng}&z=${z}&output=embed`; }
+});
 document.getElementById("mapToggle").querySelectorAll("button").forEach(b=>{
   b.addEventListener("click",()=>{
     document.getElementById("mapToggle").querySelectorAll("button").forEach(x=>x.classList.remove("active"));
