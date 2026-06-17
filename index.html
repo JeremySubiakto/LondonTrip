@@ -1,0 +1,1039 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<meta name="theme-color" content="#FDF0F0" />
+<title>London &amp; Edinburgh — Jer &amp; Tev</title>
+
+<!-- Fonts -->
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500;1,600&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet" />
+
+<style>
+/* ============================================================
+   DESIGN TOKENS — Acne Studios x Soft 3D Romantic
+   ============================================================ */
+:root{
+  --bg:        #FDF0F0;
+  --surface:   #FFFFFF;
+  --blush:     #E8C5C1;
+  --rose:      #D4A5A0;
+  --deep-rose: #B07F7A;
+  --ink:       #1C1A1A;
+  --muted:     #9E8A88;
+  --gold:      #C9A96E;
+  --glass:     rgba(255,255,255,0.65);
+
+  --serif: "Cormorant Garamond", Georgia, "Times New Roman", serif;
+  --sans:  "DM Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+
+  --r-card: 24px;
+  --r-pill: 9999px;
+
+  --soft:
+    0 2px 4px rgba(176,127,122,0.06),
+    0 8px 24px rgba(176,127,122,0.12),
+    0 24px 48px rgba(176,127,122,0.08);
+  --soft-hover:
+    0 4px 8px rgba(176,127,122,0.08),
+    0 16px 40px rgba(176,127,122,0.18),
+    0 32px 64px rgba(176,127,122,0.10);
+}
+
+*,*::before,*::after{ box-sizing:border-box; margin:0; padding:0; }
+html{ scroll-behavior:smooth; -webkit-text-size-adjust:100%; }
+@media (prefers-reduced-motion: reduce){ html{ scroll-behavior:auto; } }
+
+body{
+  font-family:var(--sans); color:var(--ink); background:var(--bg);
+  line-height:1.6; font-weight:400; overflow-x:hidden;
+  -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
+}
+body.locked{ overflow:hidden; }
+body::before{
+  content:""; position:fixed; inset:0; z-index:-2;
+  background:
+    radial-gradient(1200px 700px at 80% -10%, rgba(232,197,193,0.40), transparent 60%),
+    radial-gradient(900px 600px at -10% 100%, rgba(212,165,160,0.22), transparent 55%),
+    var(--bg);
+}
+img{ max-width:100%; display:block; }
+a{ color:inherit; text-decoration:none; }
+button{ font-family:inherit; }
+
+.serif{ font-family:var(--serif); font-weight:400; }
+.label{ font-family:var(--sans); font-weight:500; text-transform:uppercase; letter-spacing:0.08em; font-size:11px; color:var(--muted); }
+
+/* ============================================================
+   VIEWS — one section visible at a time (tabbed)
+   ============================================================ */
+.view{ display:none; }
+.view.active{ display:block; }
+.view.content{ padding:108px 0 80px; min-height:100svh; }
+.view.content.active{ animation:viewIn .5s cubic-bezier(.2,.8,.2,1); }
+@keyframes viewIn{ from{ opacity:0; transform:translateY(16px); } to{ opacity:1; transform:none; } }
+@media (prefers-reduced-motion: reduce){ .view.content.active{ animation:none; } }
+
+.wrap{ max-width:1120px; margin:0 auto; padding:0 22px; }
+
+.view-city{ font-family:var(--serif); font-style:italic; font-weight:500; font-size:clamp(26px,5vw,38px); color:var(--deep-rose); line-height:1; margin-bottom:2px; }
+.section-head{ margin-bottom:32px; }
+.section-head .eyebrow{
+  display:inline-flex; align-items:center; gap:8px;
+  font-family:var(--sans); font-weight:500; text-transform:uppercase; letter-spacing:0.14em; font-size:11px; color:var(--deep-rose);
+  background:var(--glass); -webkit-backdrop-filter:blur(10px); backdrop-filter:blur(10px);
+  border:1px solid rgba(232,197,193,0.6); padding:7px 14px; border-radius:var(--r-pill);
+  box-shadow:0 2px 10px rgba(176,127,122,0.08); margin-bottom:14px;
+}
+.section-head h2{ font-family:var(--serif); font-style:italic; font-weight:500; font-size:clamp(38px,7vw,62px); line-height:1.02; letter-spacing:-0.01em; color:var(--ink); }
+.section-head p.kicker{ font-family:var(--sans); color:var(--muted); font-size:15px; margin-top:10px; max-width:46ch; }
+
+/* ============================================================
+   NAV
+   ============================================================ */
+.nav{
+  position:fixed; top:14px; left:50%; transform:translate(-50%,-160%); z-index:60;
+  display:flex; align-items:center; gap:2px;
+  background:var(--glass); -webkit-backdrop-filter:blur(18px) saturate(140%); backdrop-filter:blur(18px) saturate(140%);
+  border:1px solid rgba(255,255,255,0.7);
+  box-shadow:0 8px 30px rgba(176,127,122,0.18), inset 0 1px 0 rgba(255,255,255,0.6);
+  border-radius:var(--r-pill); padding:6px; max-width:calc(100vw - 24px);
+  overflow-x:auto; scrollbar-width:none; opacity:0;
+  transition:transform 0.45s cubic-bezier(.2,.8,.2,1), opacity 0.45s ease;
+}
+.nav::-webkit-scrollbar{ display:none; }
+.nav.show{ transform:translate(-50%,0); opacity:1; }
+.nav button{
+  flex:0 0 auto; display:inline-flex; align-items:center; gap:6px; cursor:pointer;
+  font-family:var(--sans); font-weight:600; font-size:13px; letter-spacing:-0.01em; color:var(--deep-rose);
+  background:transparent; border:none; padding:9px 14px; border-radius:var(--r-pill); white-space:nowrap;
+  transition:background .2s ease, color .2s ease, transform .2s ease;
+}
+.nav button .ic{ font-size:14px; }
+.nav button:hover{ background:rgba(232,197,193,0.35); transform:translateY(-1px); }
+.nav button.active{ background:var(--blush); color:var(--ink); box-shadow:0 4px 14px rgba(176,127,122,0.25); }
+@media (max-width:640px){
+  .nav button .tx{ display:none; }
+  .nav button{ padding:10px 12px; font-size:15px; }
+  .nav button.active .tx{ display:inline; font-size:13px; }
+}
+
+/* ============================================================
+   HERO
+   ============================================================ */
+.hero{ min-height:100svh; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:40px 22px; position:relative; overflow:hidden; }
+.hero .star{ font-size:26px; color:var(--rose); animation:twinkle 4s ease-in-out infinite; }
+.hero .foryou{ font-family:var(--serif); font-style:italic; font-weight:500; font-size:clamp(30px,7vw,52px); color:var(--deep-rose); margin-top:20px; letter-spacing:0.01em; }
+.hero .cities{ font-family:var(--serif); font-style:italic; font-weight:500; font-size:clamp(50px,12vw,112px); line-height:0.98; letter-spacing:-0.02em; margin-top:14px; color:var(--ink); }
+.hero .cities .amp{ color:var(--rose); font-style:italic; }
+.hero .days{ font-family:var(--sans); text-transform:uppercase; letter-spacing:0.32em; font-size:13px; font-weight:500; color:var(--muted); margin-top:24px; }
+.hero .when{ font-family:var(--serif); font-style:italic; font-size:clamp(19px,4vw,26px); color:var(--deep-rose); margin-top:6px; }
+.btn{
+  display:inline-flex; align-items:center; gap:10px; font-family:var(--sans); font-weight:600; font-size:16px; letter-spacing:-0.01em; color:var(--ink);
+  background:linear-gradient(180deg, #F0D6D3 0%, var(--blush) 60%, var(--rose) 100%);
+  border:1px solid rgba(255,255,255,0.6); padding:17px 32px; border-radius:var(--r-pill); margin-top:46px; cursor:pointer;
+  box-shadow:0 1px 0 rgba(255,255,255,0.7) inset, 0 10px 24px rgba(176,127,122,0.30), 0 2px 6px rgba(176,127,122,0.20);
+  transition:transform .25s cubic-bezier(.2,.8,.2,1), box-shadow .25s ease;
+}
+.btn:hover{ transform:translateY(-3px) scale(1.015); box-shadow:0 1px 0 rgba(255,255,255,0.8) inset, 0 16px 36px rgba(176,127,122,0.38), 0 4px 10px rgba(176,127,122,0.25); }
+.btn:active{ transform:translateY(-1px) scale(0.99); }
+.btn .arrow{ transition:transform .25s ease; }
+.btn:hover .arrow{ transform:translateX(4px); }
+
+.petals{ position:absolute; inset:0; overflow:hidden; pointer-events:none; z-index:-1; }
+.petal{ position:absolute; top:-8%; width:14px; height:14px; background:radial-gradient(circle at 30% 30%, #F3DEDB, var(--blush)); border-radius:80% 0 80% 0; opacity:0.55; animation:fall linear infinite; will-change:transform; }
+@keyframes fall{ 0%{ transform:translateY(-10vh) translateX(0) rotate(0deg);} 100%{ transform:translateY(112vh) translateX(40px) rotate(360deg);} }
+@keyframes twinkle{ 0%,100%{ opacity:.4; transform:scale(.9);} 50%{ opacity:1; transform:scale(1.1);} }
+@media (prefers-reduced-motion: reduce){ .petal,.hero .star{ animation:none !important; } .petals{ display:none; } }
+
+/* ============================================================
+   CARDS
+   ============================================================ */
+.grid{ display:grid; grid-template-columns:repeat(auto-fill, minmax(280px,1fr)); gap:22px; }
+@media (max-width:680px){ .grid{ grid-template-columns:1fr 1fr; gap:14px; } }
+@media (max-width:420px){ .grid{ grid-template-columns:1fr; } }
+
+.card{ position:relative; background:var(--surface); border-radius:var(--r-card); box-shadow:var(--soft); border:1px solid rgba(232,197,193,0.4); overflow:hidden; cursor:pointer; display:flex; flex-direction:column; transition:transform .25s ease, box-shadow .25s ease; }
+.card:hover{ transform:translateY(-4px) scale(1.01); box-shadow:var(--soft-hover); }
+.card:focus-visible{ outline:3px solid var(--rose); outline-offset:2px; }
+.card.feature{ border-color:rgba(201,169,110,0.55); }
+
+.thumb{ position:relative; aspect-ratio:4/3; overflow:hidden; display:flex; align-items:center; justify-content:center; background:linear-gradient(145deg,#F8E7E5 0%, var(--blush) 65%, var(--rose) 100%); }
+.thumb[data-base="coffee"]{ background:linear-gradient(145deg,#F6ECE0,#EAD2C4 70%,#D9B6A6); }
+.thumb[data-base="pubs"]{ background:linear-gradient(145deg,#F3DEDB,#D9A8A2 70%,#B07F7A); }
+.thumb[data-base="landmarks"]{ background:linear-gradient(145deg,#F6E8DE,#E6C9A8 70%,#C9A96E); }
+.thumb img{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; opacity:0; transition:opacity .55s ease; }
+.thumb img.loaded{ opacity:1; }
+.thumb-emoji{ font-size:44px; opacity:.55; filter:saturate(.85); }
+.thumb::after{ content:""; position:absolute; inset:0; background:linear-gradient(180deg,transparent 50%, rgba(28,26,26,.30)); pointer-events:none; }
+
+.thumb-badge{ position:absolute; top:11px; left:11px; z-index:2; font-family:var(--sans); font-weight:600; font-size:10px; text-transform:uppercase; letter-spacing:0.06em; color:#5b4a2e; background:linear-gradient(180deg,#F4E4C4,var(--gold)); padding:5px 11px; border-radius:var(--r-pill); box-shadow:0 6px 16px rgba(201,169,110,0.35); border:1px solid rgba(255,255,255,0.5); max-width:calc(100% - 22px); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.thumb-badge.rose{ color:#fff; background:linear-gradient(180deg,var(--rose),var(--deep-rose)); box-shadow:0 6px 16px rgba(176,127,122,0.35); }
+.thumb-chip{ position:absolute; top:11px; right:11px; z-index:2; font-family:var(--sans); font-weight:700; font-size:12px; letter-spacing:0.5px; background:var(--glass); -webkit-backdrop-filter:blur(8px); backdrop-filter:blur(8px); border:1px solid rgba(255,255,255,0.6); padding:5px 10px; border-radius:var(--r-pill); color:var(--gold); }
+.thumb-chip .off{ color:rgba(201,169,110,0.30); }
+.thumb-chip.free{ color:#5a7a5a; }
+.thumb-chip.paid{ color:var(--deep-rose); }
+.thumb-rating{ position:absolute; left:11px; bottom:11px; z-index:2; display:none; align-items:center; gap:4px; font-family:var(--sans); font-weight:600; font-size:12px; color:#fff; text-shadow:0 1px 4px rgba(0,0,0,.4); }
+.thumb-rating.on{ display:inline-flex; }
+.thumb-rating .s{ color:#F4D27A; }
+
+.card-body{ padding:15px 16px 16px; display:flex; flex-direction:column; gap:7px; flex:1; }
+.card-body .name{ font-family:var(--sans); font-weight:600; font-size:18px; letter-spacing:-0.02em; line-height:1.15; color:var(--ink); }
+.card-body .cuisine{ font-family:var(--serif); font-style:italic; font-size:15.5px; color:var(--deep-rose); line-height:1.3; }
+.card-tags{ display:flex; flex-wrap:wrap; gap:6px; margin-top:auto; padding-top:6px; }
+.card-tags .tag{ font-family:var(--sans); font-weight:500; font-size:9.5px; text-transform:uppercase; letter-spacing:0.05em; color:var(--deep-rose); background:rgba(232,197,193,0.28); border:1px solid rgba(232,197,193,0.5); padding:4px 9px; border-radius:var(--r-pill); }
+.card-more{ font-family:var(--sans); font-weight:600; font-size:12px; color:var(--deep-rose); margin-top:8px; display:flex; align-items:center; gap:5px; }
+.card:hover .card-more .ar{ transform:translateX(3px); }
+.card-more .ar{ transition:transform .2s ease; }
+
+/* ============================================================
+   DETAIL SHEET (modal) — with Ken-Burns hero
+   ============================================================ */
+.modal-backdrop{ position:fixed; inset:0; z-index:100; background:rgba(28,26,26,.45); -webkit-backdrop-filter:blur(6px); backdrop-filter:blur(6px); display:flex; align-items:flex-end; justify-content:center; opacity:0; pointer-events:none; transition:opacity .3s ease; }
+@media (min-width:700px){ .modal-backdrop{ align-items:center; padding:24px; } }
+.modal-backdrop.open{ opacity:1; pointer-events:auto; }
+.modal{ background:var(--surface); width:100%; max-width:580px; max-height:92vh; overflow-y:auto; border-radius:26px 26px 0 0; box-shadow:var(--soft-hover); transform:translateY(40px); transition:transform .38s cubic-bezier(.2,.8,.2,1); -webkit-overflow-scrolling:touch; }
+@media (min-width:700px){ .modal{ border-radius:28px; transform:scale(.95); } }
+.modal-backdrop.open .modal{ transform:none; }
+@media (prefers-reduced-motion: reduce){ .modal,.modal-backdrop{ transition:none; } }
+
+.modal-hero{ position:relative; aspect-ratio:16/10; display:flex; align-items:center; justify-content:center; overflow:hidden; background:linear-gradient(145deg,#F8E7E5,var(--blush) 65%,var(--rose)); }
+.modal-hero img{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; transform-origin:50% 42%; animation:kenburns 17s ease-out both; }
+@keyframes kenburns{ from{ transform:scale(1.001); } to{ transform:scale(1.10); } }
+@media (prefers-reduced-motion: reduce){ .modal-hero img{ animation:none; } }
+.modal-hero .emoji{ font-size:64px; opacity:.55; }
+.modal-hero::after{ content:""; position:absolute; inset:0; background:linear-gradient(180deg,rgba(0,0,0,.05),transparent 30%, transparent 70%, rgba(28,26,26,.25)); }
+.modal-close{ position:absolute; top:14px; right:14px; z-index:3; width:38px; height:38px; border-radius:50%; border:1px solid rgba(255,255,255,0.6); background:var(--glass); -webkit-backdrop-filter:blur(8px); backdrop-filter:blur(8px); color:var(--ink); font-size:20px; line-height:1; cursor:pointer; display:flex; align-items:center; justify-content:center; box-shadow:0 4px 14px rgba(176,127,122,.25); transition:transform .2s ease, background .2s ease; }
+.modal-close:hover{ transform:scale(1.08); background:#fff; }
+.modal-hero .m-badge{ position:absolute; top:16px; left:16px; z-index:3; font-family:var(--sans); font-weight:600; font-size:10.5px; text-transform:uppercase; letter-spacing:0.06em; color:#5b4a2e; background:linear-gradient(180deg,#F4E4C4,var(--gold)); padding:6px 13px; border-radius:var(--r-pill); box-shadow:0 6px 16px rgba(201,169,110,0.4); border:1px solid rgba(255,255,255,0.5); }
+.modal-hero .m-badge.rose{ color:#fff; background:linear-gradient(180deg,var(--rose),var(--deep-rose)); }
+
+.modal-thumbs{ display:flex; gap:8px; padding:12px 22px 0; overflow-x:auto; scrollbar-width:none; }
+.modal-thumbs::-webkit-scrollbar{ display:none; }
+.modal-thumbs button{ flex:0 0 auto; width:64px; height:48px; border-radius:12px; overflow:hidden; border:2px solid transparent; padding:0; cursor:pointer; background:var(--blush); }
+.modal-thumbs button.active{ border-color:var(--rose); }
+.modal-thumbs img{ width:100%; height:100%; object-fit:cover; }
+
+.modal-body{ padding:20px 24px 28px; }
+.modal-body .label{ display:block; }
+.modal-body h2{ font-family:var(--sans); font-weight:600; font-size:26px; letter-spacing:-0.02em; line-height:1.12; margin:6px 0 2px; }
+.modal-body .m-meta-row{ display:flex; flex-wrap:wrap; align-items:center; gap:12px; margin:8px 0 14px; }
+.m-price{ font-family:var(--sans); font-weight:700; font-size:16px; letter-spacing:1px; color:var(--gold); }
+.m-price .off{ color:rgba(201,169,110,0.30); }
+.m-entry{ display:inline-flex; align-items:center; gap:6px; font-family:var(--sans); font-weight:600; font-size:11px; text-transform:uppercase; letter-spacing:0.07em; padding:5px 12px; border-radius:var(--r-pill); }
+.m-entry.free{ color:#5a7a5a; background:rgba(180,205,170,0.30); }
+.m-entry.paid{ color:var(--deep-rose); background:rgba(232,197,193,0.40); }
+.m-rating{ display:inline-flex; align-items:center; gap:6px; font-family:var(--sans); font-weight:600; font-size:14px; color:var(--ink); }
+.m-rating .s{ color:var(--gold); }
+.m-rating .c{ color:var(--muted); font-weight:500; font-size:12.5px; }
+.modal-body .cuisine{ font-family:var(--serif); font-style:italic; font-size:19px; color:var(--deep-rose); line-height:1.3; margin-bottom:12px; }
+.modal-body .summary{ font-size:15px; color:#4a4140; line-height:1.65; }
+.modal-body .must{ font-size:14px; color:#4a4140; margin-top:10px; }
+.modal-body .must b{ color:var(--deep-rose); }
+.tip{ font-size:14px; color:#4a4140; line-height:1.55; background:rgba(232,197,193,0.18); border-left:2px solid var(--blush); padding:11px 13px; border-radius:0 12px 12px 0; margin-top:14px; }
+.tip b{ color:var(--deep-rose); }
+.modal-body .walk{ font-size:13px; color:var(--muted); margin-top:12px; }
+.modal-body .walk b{ color:var(--deep-rose); font-weight:600; }
+.modal-tags{ display:flex; flex-wrap:wrap; gap:7px; margin-top:16px; }
+.modal-tags .tag{ font-family:var(--sans); font-weight:500; font-size:10.5px; text-transform:uppercase; letter-spacing:0.06em; color:var(--deep-rose); background:rgba(232,197,193,0.28); border:1px solid rgba(232,197,193,0.5); padding:5px 11px; border-radius:var(--r-pill); }
+.modal-actions{ display:flex; flex-wrap:wrap; gap:10px; margin-top:20px; }
+.chip-link{ display:inline-flex; align-items:center; gap:7px; font-family:var(--sans); font-weight:600; font-size:13.5px; color:var(--deep-rose); background:rgba(232,197,193,0.22); border:1px solid rgba(232,197,193,0.55); padding:11px 18px; border-radius:var(--r-pill); transition:background .2s, transform .2s, color .2s; cursor:pointer; }
+.chip-link:hover{ background:var(--blush); color:var(--ink); transform:translateY(-1px); }
+.chip-link.solid{ background:var(--blush); color:var(--ink); }
+.chip-link.solid:hover{ background:var(--rose); }
+
+/* ============================================================
+   MAP + sub-tab toggle (also used for Edinburgh sub-nav)
+   ============================================================ */
+.toggle{ display:inline-flex; gap:6px; background:var(--glass); border:1px solid rgba(232,197,193,0.6); padding:6px; border-radius:var(--r-pill); box-shadow:var(--soft); margin-bottom:22px; max-width:100%; overflow-x:auto; scrollbar-width:none; }
+.toggle::-webkit-scrollbar{ display:none; }
+.toggle button{ flex:0 0 auto; font-family:var(--sans); font-weight:600; font-size:14px; color:var(--deep-rose); background:transparent; border:none; cursor:pointer; padding:10px 18px; border-radius:var(--r-pill); white-space:nowrap; transition:background .2s,color .2s; }
+.toggle button.active{ background:var(--blush); color:var(--ink); box-shadow:0 4px 12px rgba(176,127,122,0.22); }
+
+.map-frame{ position:relative; aspect-ratio:16/9; border-radius:var(--r-card); overflow:hidden; box-shadow:var(--soft); border:1px solid rgba(232,197,193,0.5); background:#F5E6E4; }
+@media (max-width:640px){ .map-frame{ aspect-ratio:4/5; } }
+.map-frame > #map-canvas, .map-frame > iframe{ position:absolute; inset:0; width:100%; height:100%; border:0; }
+#map-canvas{ display:none; }
+.map-frame iframe{ filter:saturate(0.85) hue-rotate(-6deg) brightness(1.03); }
+.map-frame.live #map-canvas{ display:block; }
+.map-frame.live iframe{ display:none; }
+.map-note{ font-size:12.5px; color:var(--muted); margin-top:12px; }
+.hoods{ display:flex; flex-wrap:wrap; gap:8px; margin-top:16px; }
+.hoods .hood-chip{ font-family:var(--sans); font-weight:500; font-size:12px; letter-spacing:0.02em; color:var(--deep-rose); background:var(--surface); border:1px solid rgba(232,197,193,0.55); padding:8px 14px; border-radius:var(--r-pill); box-shadow:0 2px 8px rgba(176,127,122,0.08); }
+
+/* Edinburgh */
+.city-head{ text-align:center; margin-bottom:26px; }
+.city-head .city{ font-family:var(--serif); font-style:italic; font-weight:500; font-size:clamp(46px,10vw,86px); line-height:1; color:var(--ink); letter-spacing:-0.01em; }
+.city-head .sub{ font-family:var(--serif); font-style:italic; font-size:clamp(17px,3.4vw,23px); color:var(--deep-rose); margin-top:8px; }
+.edi-panel{ display:none; }
+.edi-panel.active{ display:block; animation:viewIn .45s cubic-bezier(.2,.8,.2,1); }
+@media (prefers-reduced-motion: reduce){ .edi-panel.active{ animation:none; } }
+
+.train{ background:linear-gradient(180deg,#FFFFFF,#FEF7F6); border:1px solid rgba(232,197,193,0.5); border-radius:var(--r-card); box-shadow:var(--soft); padding:28px 26px; display:grid; gap:16px; }
+.train .route{ display:flex; align-items:center; gap:14px; flex-wrap:wrap; }
+.train .stop{ font-family:var(--serif); font-style:italic; font-size:clamp(22px,4vw,30px); color:var(--ink); }
+.train .dash{ flex:1; min-width:40px; height:2px; background:repeating-linear-gradient(90deg,var(--blush) 0 8px, transparent 8px 16px); position:relative; }
+.train .dash::after{ content:"🚆"; position:absolute; right:-4px; top:-13px; font-size:18px; }
+.train .facts{ display:flex; flex-wrap:wrap; gap:22px; }
+.train .fact .label{ display:block; margin-bottom:2px; }
+.train .fact .val{ font-family:var(--sans); font-weight:600; font-size:16px; color:var(--ink); }
+.train .note{ font-size:14px; color:#4a4140; }
+
+footer{ text-align:center; padding:40px 22px 20px; }
+footer .heart{ font-size:22px; color:var(--rose); }
+footer .line{ font-family:var(--serif); font-style:italic; font-size:24px; color:var(--deep-rose); margin-top:14px; }
+footer .small{ font-size:12px; color:var(--muted); margin-top:8px; letter-spacing:0.04em; }
+</style>
+</head>
+<body>
+
+<!-- ===================== NAV ===================== -->
+<nav class="nav" id="nav" aria-label="Sections">
+  <button data-view="hero"><span class="ic">✦</span><span class="tx">home</span></button>
+  <button data-view="map"><span class="ic">🗺</span><span class="tx">map</span></button>
+  <button data-view="restaurants"><span class="ic">🍽</span><span class="tx">eat</span></button>
+  <button data-view="coffee"><span class="ic">☕</span><span class="tx">coffee</span></button>
+  <button data-view="pubs"><span class="ic">🍺</span><span class="tx">pubs</span></button>
+  <button data-view="landmarks"><span class="ic">🏛</span><span class="tx">see</span></button>
+  <button data-view="edinburgh"><span class="ic">🏴</span><span class="tx">Edinburgh</span></button>
+</nav>
+
+<!-- ===================== HERO ===================== -->
+<section class="view hero active" data-view="hero">
+  <div class="petals" id="petals" aria-hidden="true"></div>
+  <span class="star">✦</span>
+  <p class="foryou">Jer &amp; Tev</p>
+  <h1 class="cities">London <span class="amp">&amp;</span><br />Edinburgh</h1>
+  <p class="days">14 days · July 2026</p>
+  <p class="when serif">a little map of where we'll wander</p>
+  <button class="btn" id="openTrip">open our trip <span class="arrow">→</span></button>
+</section>
+
+<!-- ===================== MAP ===================== -->
+<section class="view content" data-view="map">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="eyebrow">🗺 the map</span>
+      <h2>find us here</h2>
+      <p class="kicker">Two cities, fourteen days, every spot pinned. Tap a pin to open it.</p>
+    </div>
+    <div class="toggle" id="mapToggle" role="tablist">
+      <button class="active" data-city="london" role="tab">London</button>
+      <button data-city="edinburgh" role="tab">Edinburgh</button>
+    </div>
+    <div class="map-frame" id="mapFrame">
+      <div id="map-canvas"></div>
+      <iframe id="mapFallback" loading="lazy" referrerpolicy="no-referrer-when-downgrade" title="Map" src="https://www.google.com/maps?q=London%2C+UK&z=12&output=embed"></iframe>
+    </div>
+    <p class="map-note" id="mapNote"></p>
+    <div class="hoods" id="hoods"></div>
+  </div>
+</section>
+
+<!-- ===================== LONDON · EAT ===================== -->
+<section class="view content" data-view="restaurants">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="eyebrow">🍽 the tables</span>
+      <div class="view-city">London</div>
+      <h2>where we'll eat</h2>
+      <p class="kicker">Lobster rolls, candlelit bistros, and the two most romantic restaurants in London.</p>
+    </div>
+    <div class="grid" id="grid-restaurants"></div>
+  </div>
+</section>
+
+<!-- ===================== LONDON · COFFEE ===================== -->
+<section class="view content" data-view="coffee">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="eyebrow">☕ the cafés</span>
+      <div class="view-city">London</div>
+      <h2>slow mornings</h2>
+      <p class="kicker">Rose lattes, pink interiors, and the most photogenic cafés in the city.</p>
+    </div>
+    <div class="grid" id="grid-coffee"></div>
+  </div>
+</section>
+
+<!-- ===================== LONDON · PUBS ===================== -->
+<section class="view content" data-view="pubs">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="eyebrow">🍺 pubs &amp; bars</span>
+      <div class="view-city">London</div>
+      <h2>somewhere cozy</h2>
+      <p class="kicker">Flower-covered pubs, secret whisky bars, and the most romantic bar in London.</p>
+    </div>
+    <div class="grid" id="grid-pubs"></div>
+  </div>
+</section>
+
+<!-- ===================== LONDON · SEE ===================== -->
+<section class="view content" data-view="landmarks">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="eyebrow">🏛 the sights</span>
+      <div class="view-city">London</div>
+      <h2>things to see</h2>
+      <p class="kicker">Museums, palaces, rooftop gardens and markets — most of them free.</p>
+    </div>
+    <div class="grid" id="grid-landmarks"></div>
+  </div>
+</section>
+
+<!-- ===================== EDINBURGH ===================== -->
+<section class="view content" data-view="edinburgh">
+  <div class="wrap">
+    <div class="city-head">
+      <div class="city serif">Edinburgh</div>
+      <div class="sub">four days in the north — wilder, older, yours</div>
+    </div>
+    <div class="toggle" id="ediToggle" role="tablist">
+      <button class="active" data-edi="getting" role="tab">🚆 getting there</button>
+      <button data-edi="eat" role="tab">🍽 eat</button>
+      <button data-edi="see" role="tab">🏛 see</button>
+      <button data-edi="coffee" role="tab">☕ coffee</button>
+      <button data-edi="pubs" role="tab">🍺 pubs</button>
+    </div>
+
+    <div class="edi-panel active" data-edi="getting">
+      <div class="train">
+        <div class="route"><span class="stop">London King's Cross</span><span class="dash"></span><span class="stop">Edinburgh Waverley</span></div>
+        <div class="facts">
+          <div class="fact"><span class="label">Operator</span><span class="val">LNER · lner.co.uk</span></div>
+          <div class="fact"><span class="label">Duration</span><span class="val">~4.5 hours</span></div>
+          <div class="fact"><span class="label">Advance from</span><span class="val">~£30–40</span></div>
+        </div>
+        <p class="note">Book in advance for cheap seats and grab a table seat — watch the North Yorkshire coast slide by. It's beautiful.</p>
+        <div class="modal-actions" style="margin-top:4px;"><a class="chip-link solid" href="https://www.lner.co.uk" target="_blank" rel="noopener">Book on LNER ↗</a></div>
+      </div>
+    </div>
+
+    <div class="edi-panel" data-edi="eat"><div class="grid" id="grid-edi-restaurants"></div></div>
+    <div class="edi-panel" data-edi="see"><div class="grid" id="grid-edi-landmarks"></div></div>
+    <div class="edi-panel" data-edi="coffee"><div class="grid" id="grid-edi-coffee"></div></div>
+    <div class="edi-panel" data-edi="pubs"><div class="grid" id="grid-edi-pubs"></div></div>
+  </div>
+</section>
+
+<footer>
+  <div class="heart">✦</div>
+  <div class="line">Built with love — Jer</div>
+  <div class="small">July 2026 · London &amp; Edinburgh</div>
+</footer>
+
+<!-- ===================== DETAIL SHEET ===================== -->
+<div class="modal-backdrop" id="modal" aria-hidden="true">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="m-title" id="modalCard"></div>
+</div>
+
+<script>
+/* ============================================================
+   GOOGLE KEY — lights up photos, ⭐ ratings, blush pinned map.
+   Needs "Maps JavaScript API" + "Places API (New)" enabled.
+   ============================================================ */
+const CONFIG = { googleApiKey: "AIzaSyB_JseRSfr-paQDwmZ4JnB2CUrygfc3_xo" };
+
+/* ============================================================
+   DATA
+   ============================================================ */
+const PLACES = [
+  /* ---------- LONDON · RESTAURANTS ---------- */
+  { id:"maine-mayfair", cat:"restaurants", name:"The Maine Mayfair", hood:"Mayfair, W1",
+    cuisine:"New England brasserie — seafood, lobster, raw bar", price:3,
+    placeId:"ChIJo5BIYe4adkgRCKBRIsWa3rw",
+    bookingUrl:"https://www.opentable.co.uk/r/the-maine-mayfair-london", bookingLabel:"OpenTable",
+    walkIn:"Bar & Terrace are walk-in friendly. Brasserie needs a booking · +44 20 3432 2192.",
+    summary:"Set inside a restored Georgian townhouse spread over five elegant rooms, The Maine is New England glamour meets Mayfair mischief. Think lobster rolls, clam chowder, raw bar platters — and live music every single night in the Brasserie. The Drawing Room has chandelier banquettes and cocktail-bar energy; the hidden year-round Terrace is perfect for lazy lunches.",
+    tags:["live music","terrace","date night","iconic"], badge:"✦ your pick", badgeRose:true, feature:true },
+
+  { id:"the-dover", cat:"restaurants", name:"The Dover", hood:"Mayfair, W1",
+    cuisine:"Italian-American — pasta, steak, caviar", price:3,
+    bookingUrl:"https://www.thedover.co.uk", bookingLabel:"Resy",
+    walkIn:"Walk-in bar (no reservation) — great for cocktails & bar snacks.",
+    summary:"Time Out crowned this London's most romantic restaurant in 2025. Dark walnut walls lifted from a 1930s cruise liner, discreet corner booths, flattering lighting. Try the crispy potato cakes with caviar or lobster bisque ravioli. The no-bookings bar does martinis and mini hot dogs — genuinely one of the best spontaneous date stops in Mayfair.",
+    tags:["most romantic","walk-in bar","date night","Mayfair"], badge:"Time Out #1 · 2025" },
+
+  { id:"bouchon-racine", cat:"restaurants", name:"Bouchon Racine", hood:"Farringdon, EC1",
+    cuisine:"Classic French bistro", price:2,
+    bookingUrl:"https://bouchonracine.co.uk", bookingLabel:"Book",
+    walkIn:"Limited walk-ins — book at least 2 weeks ahead.",
+    summary:"A 'heavenly hideaway' hidden in Farringdon — Time Out's most romantic restaurant in London for 2026. Timeless French bistro cooking in a candlelit room that feels like it belongs in Paris. Onion soup, duck confit, crème brûlée. Small, intimate, and unfussy in the best way.",
+    tags:["most romantic 2026","French","candlelit","hidden gem"], badge:"Time Out #1 · 2026" },
+
+  { id:"claridges", cat:"restaurants", name:"Claridge's Restaurant", hood:"Mayfair, W1",
+    cuisine:"Modern British — Art Deco, seasonal plates", price:4,
+    bookingUrl:"https://www.claridges.co.uk/restaurants-bars/the-restaurant-at-claridges/", bookingLabel:"Book",
+    walkIn:"Booking essential. Dress up.",
+    summary:"Inside the legendary Claridge's Hotel, this Art Deco dining room is one of London's great rooms. Plush green velvet booths, seasonal British plates, old-world formality done beautifully. After dinner, slip into the Red Room — an intimate wine bar with pink blush walls, contemporary art, and rare vintages.",
+    tags:["fine dining","Art Deco","splurge","iconic"] },
+
+  { id:"bottarga", cat:"restaurants", name:"Bottarga", hood:"Chelsea, SW3",
+    cuisine:"Seafood-forward Mediterranean — relaxed glamour", price:3,
+    bookingUrl:"https://bottarga.co.uk", bookingLabel:"Book",
+    walkIn:"Limited — book ahead.",
+    summary:"From the team behind beloved Notting Hill Greek restaurant Zephyr, Bottarga is a Med-inspired stunner in Chelsea. Curved banquettes, a tiled terrace, an unfussy seafood-forward menu. Dimly lit and subtly chic — the kind of place where one glass turns into three and you forget the time.",
+    tags:["seafood","Mediterranean","intimate","date night"] },
+
+  { id:"automat", cat:"restaurants", name:"Automat", hood:"Mayfair, Mount St, W1",
+    cuisine:"Modern European — aphrodisiac menu, dark energy", price:3,
+    bookingUrl:"https://resy.com/cities/ldn", bookingLabel:"Resy",
+    walkIn:"Small venue — book. Hidden behind the Tanner Krolle shop on Mount St.",
+    summary:"Hidden in the back of a luxury leather-goods shop on Mayfair's coolest street, Automat is low-lit, cheeky, and full of scandal-prone drinking-den energy. The Infatuation called it an “aphrodisiac of a restaurant.” Secret, small, and exactly the kind of place that becomes your story from the trip.",
+    tags:["hidden gem","secret","date night","Mayfair"], badge:"hidden gem" },
+
+  { id:"farm-girl", cat:"restaurants", name:"Farm Girl", hood:"Notting Hill / Portobello Rd, W11",
+    cuisine:"Australian brunch — healthy, plant-forward", price:2,
+    bookingUrl:"https://thefarmgirl.co.uk", bookingLabel:"Book",
+    walkIn:"Walk-ins usually fine on weekdays.",
+    summary:"The original Notting Hill Farm Girl on Portobello Road is one of London's most iconic brunch spots. Rose lattes (yes, actual rose lattes), avocado toast, açaí bowls — all against a backdrop of hanging plants and natural wood. The aesthetic is very her.",
+    tags:["brunch","rose latte","Notting Hill","walk-in"] },
+
+  /* ---------- LONDON · COFFEE ---------- */
+  { id:"elan-cafe", cat:"coffee", name:"Elan Cafe", hood:"Marylebone · multiple",
+    cuisine:"Pink decor & brunch — the most instagrammable café in London", price:2,
+    mustTry:"Dutch baby pancakes · Lucky Charms latte", walkIn:"Walk-in: yes",
+    summary:"If she likes pink, this is the one. The interior is rose-pink with mirrored details and velvet chairs. Get the Dutch baby and the Lucky Charms latte. Peak pink-girl energy.",
+    tags:["pink","brunch","instagrammable"] },
+
+  { id:"laduree", cat:"coffee", name:"Ladurée London", hood:"Covent Garden + Notting Hill",
+    cuisine:"Parisian macaron institution — pastel tearoom", price:2,
+    mustTry:"Pistachio macaron · rose latte · mille-feuille", walkIn:"Walk-in: yes",
+    summary:"The famous Paris macaron house has two London spots. The Notting Hill one is more serene; Covent Garden is grander. Get a box of macarons to take away.",
+    tags:["macarons","Parisian","pastel"] },
+
+  { id:"butter-bakery", cat:"coffee", name:"Butter Bakery", hood:"Notting Hill, W11",
+    cuisine:"Cozy neighbourhood bakery — local favourite", price:1,
+    mustTry:"Salted caramel brownie · sourdough · flat white", walkIn:"Walk-in: yes",
+    summary:"A proper Notting Hill local. No frills, just excellent baked goods and strong coffee. Great pit stop after wandering Portobello Road market.",
+    tags:["bakery","local","cozy"] },
+
+  { id:"biscuiteers", cat:"coffee", name:"Biscuiteers Café", hood:"Portobello Rd, Notting Hill",
+    cuisine:"Black-and-white Parisian style — hand-iced biscuits", price:2,
+    mustTry:"Hand-iced biscuits · mocha", walkIn:"Walk-in: yes",
+    summary:"One of London's most photographed cafés. Begging to be on her Instagram. Black-and-white exterior with beautiful biscuit-art in the window. Buy a tin to take home.",
+    tags:["photogenic","biscuits","Notting Hill"] },
+
+  { id:"farm-girl-coffee", cat:"coffee", name:"Farm Girl Coffee", hood:"Portobello Rd, Notting Hill",
+    cuisine:"Rustic-chic, plant-filled, Australian-cool", price:2,
+    mustTry:"The (famous) rose latte · chia pudding", walkIn:"Walk-in: yes",
+    summary:"The rose latte alone is worth the visit. Get one, walk down Portobello Road with it. You're welcome.",
+    tags:["rose latte","plants","Portobello"] },
+
+  { id:"leto", cat:"coffee", name:"L'eto Café", hood:"Westbourne Grove, Notting Hill",
+    cuisine:"Mediterranean, home-like, pastel — famous for milk cakes", price:2,
+    mustTry:"Pistachio milk cake · cappuccino", walkIn:"Walk-in: yes",
+    summary:"The Westbourne Grove branch has the best aesthetics of all L'eto locations. The milk cakes are their signature — get the pistachio. Comfy sofa seating, very lingerable.",
+    tags:["milk cake","pastel","lingerable"] },
+
+  /* ---------- LONDON · PUBS ---------- */
+  { id:"churchill-arms", cat:"pubs", name:"The Churchill Arms", hood:"Kensington Church St, Notting Hill",
+    cuisine:"🌸 Famous flower-covered exterior — legendary", price:1, walkIn:"Walk-in: yes",
+    summary:"One of London's most photographed pubs. The exterior is absolutely buried in hanging baskets and flowers — a classic Notting Hill shot. Inside is charmingly chaotic with old Churchill memorabilia everywhere. Thai food served inside (surprisingly good).",
+    tags:["flowers","photogenic","Thai food"] },
+
+  { id:"spaniards-inn", cat:"pubs", name:"The Spaniards Inn", hood:"Hampstead Heath, NW3",
+    cuisine:"🕯 16th-century, literary history, cozy fireplace", price:2, walkIn:"Walk-in: yes · book for food",
+    summary:"One of London's oldest pubs, and genuinely one of the most romantic. Keats wrote “Ode to a Nightingale” here. Toasty fires, mulled wine, a real fireplace. Worth the trek to Hampstead — combine with a walk on the Heath.",
+    tags:["historic","fireplace","romantic"] },
+
+  { id:"george-inn", cat:"pubs", name:"The George Inn", hood:"Borough / London Bridge, SE1",
+    cuisine:"🏛 London's only surviving galleried coaching inn · 1542", price:1, walkIn:"Walk-in: yes",
+    summary:"The only National Trust-owned pub in London. Tucked down an alley near London Bridge, it looks like it hasn't changed since Shakespeare's day (because it mostly hasn't). Order a pint and sit in the courtyard.",
+    tags:["National Trust","historic","courtyard"] },
+
+  { id:"dickies-bar", cat:"pubs", name:"Dickie's Bar", hood:"Upper Grosvenor St, Mayfair",
+    cuisine:"Secret whisky bar — Michelin-chef bar food", price:3, walkIn:"Walk-in: yes, but intimate — can fill up",
+    summary:"Hidden inside Corrigan's Mayfair, this is one of the city's best-kept secrets. Rare Irish whiskeys, perfectly poured Guinness, Michelin-starred bar snacks (smoked eel croquettes, quail scotch eggs). The ideal Mayfair nightcap.",
+    tags:["hidden gem","whisky","nightcap"], badge:"hidden gem" },
+
+  { id:"red-room", cat:"pubs", name:"The Red Room · The Connaught", hood:"Carlos Place, Mayfair",
+    cuisine:"Hotel wine bar — blush-pink walls, art by women", price:4, walkIn:"Walk-in welcome · can be busy",
+    summary:"Hidden inside The Connaught hotel. An intimate wine bar with blush-pink walls, stained glass, and art from four female artists. The wine list is legendary (pulled from the hotel's historic cellars) and cocktails are wine-inspired. Genuinely the most romantic bar in London.",
+    tags:["most romantic","blush walls","cocktails"], badge:"most romantic bar", badgeRose:true, feature:true },
+
+  /* ---------- LONDON · LANDMARKS ---------- */
+  { id:"va", cat:"landmarks", name:"Victoria & Albert Museum", hood:"South Kensington, SW7",
+    entry:"free",
+    tip:"Book free entry online. Head straight to the Fashion gallery and the Cast Courts (enormous Victorian plaster casts — jaw-dropping). The café is in a stunning ornate room.",
+    summary:"The world's greatest museum of art, design, and fashion. Five floors of everything from medieval armour to Alexander McQueen gowns. She'll love the Fashion gallery. Budget half a day minimum — it's impossible to rush.",
+    tags:["fashion","free","half a day"] },
+
+  { id:"nhm", cat:"landmarks", name:"Natural History Museum", hood:"South Kensington, SW7",
+    entry:"free",
+    tip:"Book timed entry online. The blue whale 'Hope' in Hintze Hall is one of the most beautiful things in London. Go first thing or late afternoon to dodge crowds.",
+    summary:"Dinosaur skeletons, 80 million specimens, and one of London's most beautiful Victorian buildings. The suspended blue whale alone is worth the visit. Right next to the V&A — do both in one South Kensington morning.",
+    tags:["dinosaurs","free","Victorian"] },
+
+  { id:"tate-modern", cat:"landmarks", name:"Tate Modern", hood:"Bankside, SE1",
+    entry:"free",
+    tip:"Walk across the Millennium Bridge from St Paul's for the best approach. Friday late openings (10pm) are more romantic and less crowded.",
+    summary:"London's modern and contemporary art museum inside a dramatic converted power station. The Turbine Hall always has a spectacular installation. Walk across the Millennium Bridge afterward for one of London's best views.",
+    tags:["modern art","free","river views"] },
+
+  { id:"national-gallery", cat:"landmarks", name:"National Gallery", hood:"Trafalgar Square, WC2",
+    entry:"free",
+    tip:"Friday late opening to 9pm — quieter, more atmospheric. Go to Room 34 for the Impressionists (Monet, Renoir, Van Gogh's Sunflowers).",
+    summary:"2,300 paintings from 1300–1900, including da Vinci, Vermeer, Turner, and Van Gogh's Sunflowers. One of the finest art collections on earth, all free. Trafalgar Square outside is one of London's great public spaces.",
+    tags:["paintings","free","Sunflowers"] },
+
+  { id:"tower-of-london", cat:"landmarks", name:"Tower of London", hood:"Tower Hill, EC3",
+    entry:"paid · ~£34",
+    tip:"Book online in advance — cheaper and you skip queues. Don't miss the Crown Jewels (arrive early, queues build fast). The Yeoman Warder tours are genuinely good.",
+    summary:"Over 900 years of royal history in a riverside fortress. Home of the Crown Jewels, including the 530-carat Cullinan I — the largest colourless cut diamond in the world. Walk the medieval walls, see the ravens, take the Yeoman Warder tour.",
+    tags:["Crown Jewels","history","ravens"] },
+
+  { id:"kensington-palace", cat:"landmarks", name:"Kensington Palace", hood:"Kensington Gardens, W8",
+    entry:"paid · ~£22",
+    tip:"Combine with a walk through Kensington Gardens to the Diana Memorial Fountain. The palace gift shop has beautiful things.",
+    summary:"The home of Princess Diana, now home to William and Kate. See the State Rooms, Diana's dresses, and the beautiful Sunken Garden. Kensington Gardens surrounds it — one of London's loveliest parks for a wander.",
+    tags:["Diana","royal","gardens"] },
+
+  { id:"sky-garden", cat:"landmarks", name:"Sky Garden", hood:"Fenchurch St (Walkie Talkie), EC3",
+    entry:"free · book ahead",
+    tip:"Book weeks ahead at skygarden.london — it sells out. Evening slots give the best city views. No photography restrictions.",
+    summary:"A free rooftop garden 35 floors above the City, with 360° panoramic views. Tropical plants, a bar, and one of London's best free views. Book evening for sunset over the Thames — spectacular and completely free.",
+    tags:["rooftop","free","sunset"] },
+
+  { id:"borough-market", cat:"landmarks", name:"Borough Market", hood:"London Bridge, SE1",
+    entry:"free",
+    tip:"Go on a weekday morning (less crowded). Try the Raclette stall, the Ethiopian injera stand, and the Spanish jamón. Coffee at Monmouth inside the market.",
+    summary:"London's oldest and most celebrated food market, under the Victorian railway arches near London Bridge. Sample everything — the best way to eat your way through London in one morning. Beautiful for photography.",
+    tags:["food market","free","photogenic"] },
+
+  { id:"portobello", cat:"landmarks", name:"Portobello Road Market", hood:"Notting Hill, W11",
+    entry:"free",
+    tip:"Saturday is the biggest day — arrive by 10am. Antiques at the Notting Hill Gate end; street food and vintage toward Ladbroke Grove.",
+    summary:"London's most famous street market, stretching down a colourful hill through Notting Hill. Antiques, vintage fashion, street food, buskers. The pastel houses make it one of the most photogenic streets in the city. Perfect Saturday morning.",
+    tags:["market","pastel houses","Saturday"] },
+
+  { id:"the-shard", cat:"landmarks", name:"The View from The Shard", hood:"London Bridge, SE1",
+    entry:"paid · ~£32",
+    tip:"Book a sunset slot. Cheaper free alternatives: Sky Garden or Horizon 22 (horizon22.co.uk).",
+    summary:"Europe's tallest building offers 360° views from 244 metres above London. The view at sunset, with the Thames winding through the city, is extraordinary. Worth splurging on for one evening — book the latest possible slot.",
+    tags:["views","sunset","splurge"] },
+
+  /* ---------- EDINBURGH · RESTAURANTS ---------- */
+  { id:"witchery", cat:"edi-restaurants", name:"The Witchery by the Castle", hood:"Royal Mile, Old Town, Edinburgh",
+    cuisine:"Scottish fine dining — game, seafood, whisky", price:4,
+    bookingUrl:"https://www.thewitchery.com", bookingLabel:"Book",
+    walkIn:"No walk-ins realistically — book weeks ahead.",
+    summary:"Edinburgh's most atmospheric restaurant. Gothic candlelit chambers draped in tapestries, right by the Castle gates. The menu is Scottish luxury — venison, lobster, an exceptional whisky list. One of the most romantic rooms in Britain. Book the Secret Garden room if you can.",
+    tags:["most romantic","fine dining","gothic","iconic"], badge:"✦ most romantic", badgeRose:true, feature:true },
+
+  { id:"stockbridge", cat:"edi-restaurants", name:"The Stockbridge Restaurant", hood:"Stockbridge, Edinburgh",
+    cuisine:"Modern Scottish — seasonal, local produce", price:3,
+    bookingUrl:"https://thestockbridgerestaurant.com", bookingLabel:"Book",
+    walkIn:"Small venue — book ahead.",
+    summary:"A candlelit hidden gem in Edinburgh's most charming neighbourhood. The menu changes constantly with the seasons — venison with juniper, pan-seared salmon, cranachan. Intimate and quietly perfect. The kind of dinner you talk about for years.",
+    tags:["hidden gem","seasonal","intimate"], badge:"hidden gem" },
+
+  { id:"six-by-nico", cat:"edi-restaurants", name:"Six by Nico", hood:"Hanover St, New Town, Edinburgh",
+    cuisine:"6-course tasting menu — theme changes every 6 weeks", price:3,
+    bookingUrl:"https://sixbynico.co.uk", bookingLabel:"Book",
+    walkIn:"Tasting menu only — book essential.",
+    summary:"A 6-course tasting menu built around a new theme every six weeks (past themes: Thai Street Food, The Chippie, Willy Wonka). Perfect if you want a shared adventure — every course is a conversation starter. Dark basement setting, great value for a tasting menu.",
+    tags:["tasting menu","unique","creative"] },
+
+  { id:"cafe-st-honore", cat:"edi-restaurants", name:"Café St Honoré", hood:"Thistle St Lane, New Town, Edinburgh",
+    cuisine:"Classic French bistro — seasonal", price:3,
+    bookingUrl:"https://cafesthonore.com", bookingLabel:"Book",
+    walkIn:"Book ahead · walk-ins possible at lunch.",
+    summary:"Edinburgh's most beloved French bistro, hidden down a cobbled lane in the New Town. Zinc bar, wooden floors, Gallic warmth. The kind of place that feels like a discovery even though locals have known it forever. Excellent set lunch.",
+    tags:["French","hidden gem","cozy"] },
+
+  { id:"chaophraya", cat:"edi-restaurants", name:"Chaophraya", hood:"Castle St, New Town, Edinburgh",
+    cuisine:"🏰 Thai — panoramic castle views", price:2,
+    bookingUrl:"https://chaophraya.co.uk/edinburgh/", bookingLabel:"Book",
+    walkIn:"Request a window table when booking.",
+    summary:"Request a castle-view table and you'll have Edinburgh Castle lit up outside your window while you eat pad Thai. One of the few places in the city with dramatic castle views during dinner. Romantic in a completely different register — the view does all the work.",
+    tags:["castle views","Thai","romantic view"] },
+
+  /* ---------- EDINBURGH · LANDMARKS ---------- */
+  { id:"edinburgh-castle", cat:"edi-landmarks", name:"Edinburgh Castle", hood:"Castle Rock, Old Town",
+    entry:"paid · ~£19.50",
+    tip:"Book online in advance. Go at 9am open to beat tour groups. The Honours of Scotland (the Scottish Crown Jewels) inside are older than the English ones.",
+    summary:"Scotland's most-visited paid attraction, perched on a volcanic rock above the city. The Crown Jewels, the Stone of Destiny, panoramic views. Walk the Royal Mile down from the Castle to Holyrood — the full Old Town spine.",
+    tags:["castle","Crown Jewels","views"] },
+
+  { id:"arthurs-seat", cat:"edi-landmarks", name:"Arthur's Seat", hood:"Holyrood Park, Edinburgh",
+    entry:"free",
+    tip:"Wear good shoes — 45–60 min to the summit. Go at golden hour for the best light over the city and the Firth of Forth.",
+    summary:"An ancient volcano rising 251 metres above Edinburgh, a 20-minute walk from the Royal Mile. The hike is gentle and the view from the summit is one of the most breathtaking in Britain. An unmissable morning — pack a picnic.",
+    tags:["hike","volcano","golden hour"] },
+
+  { id:"royal-mile", cat:"edi-landmarks", name:"The Royal Mile", hood:"Old Town, Edinburgh",
+    entry:"free",
+    tip:"Walk from the Castle down to Holyrood Palace. Explore the closes (narrow medieval alleyways) — hidden courtyards and the best photography in Edinburgh.",
+    summary:"The spine of Edinburgh's Old Town — a mile of medieval history from Castle to Palace. Lined with closes, independent shops and Scottish food stalls (try tablet and haggis sausage rolls). The closes are the real discovery.",
+    tags:["walk","medieval","closes"] },
+
+  { id:"nms", cat:"edi-landmarks", name:"National Museum of Scotland", hood:"Chambers St, Old Town, Edinburgh",
+    entry:"free",
+    tip:"The Grand Gallery atrium is one of the most beautiful rooms in Scotland. Go to the roof terrace for free city views — almost no one knows about it.",
+    summary:"Scotland's national museum — six floors of history, culture, science and the natural world, all free. The roof terrace has spectacular free views over the Old Town roofline. World-class, completely free, and never as crowded as the London equivalents.",
+    tags:["museum","free","roof terrace"] },
+
+  { id:"dean-village", cat:"edi-landmarks", name:"Dean Village", hood:"West End, Edinburgh",
+    entry:"free",
+    tip:"Walk down Bell's Brae from the Dean Bridge. Very early morning or golden hour for the best photos — almost no tourists.",
+    summary:"A hidden medieval village tucked into a valley carved by the Water of Leith, ten minutes from the centre. Feels like a fairy tale — cobbled lanes, old mill buildings, weeping willows over the river. One of Edinburgh's greatest hidden secrets and perfect for couple photos.",
+    tags:["fairy tale","hidden","photos"] },
+
+  { id:"calton-hill", cat:"edi-landmarks", name:"Calton Hill", hood:"East end of Princes St, Edinburgh",
+    entry:"free",
+    tip:"Go at sunset. The view sweeps over the Castle, Arthur's Seat, the Firth of Forth and the whole New Town. 10 minutes from Princes St.",
+    summary:"A hilltop scattered with monuments at the east end of Princes Street — free, 10 minutes from anywhere, and one of the best sunset viewpoints in the city. The Parthenon-inspired National Monument makes for striking silhouettes at dusk.",
+    tags:["sunset","views","monuments"] },
+
+  /* ---------- EDINBURGH · COFFEE ---------- */
+  { id:"cairngorm", cat:"edi-coffee", name:"Cairngorm Coffee", hood:"Frederick St, New Town, Edinburgh",
+    cuisine:"Edinburgh's best specialty coffee — minimal Scandi", price:2,
+    mustTry:"Filter coffee · cardamom bun", walkIn:"Walk-in: yes",
+    summary:"Edinburgh's best specialty coffee in a minimal Scandi space. Get the filter and a cardamom bun.",
+    tags:["specialty","Scandi","filter"] },
+
+  { id:"fortitude", cat:"edi-coffee", name:"Fortitude Coffee", hood:"York Place, Edinburgh",
+    cuisine:"Tiny, beloved local institution", price:2,
+    mustTry:"Flat white · homemade banana bread", walkIn:"Walk-in: yes",
+    summary:"A tiny, beloved local institution. Flat white and homemade banana bread — that's the order.",
+    tags:["tiny","local","flat white"] },
+
+  /* ---------- EDINBURGH · PUBS ---------- */
+  { id:"bow-bar", cat:"edi-pubs", name:"The Bow Bar", hood:"Victoria St, Old Town, Edinburgh",
+    cuisine:"No-frills legendary real-ale pub — Victorian interior", price:1, walkIn:"Walk-in: yes",
+    summary:"One of Edinburgh's finest real-ale bars, on the beautiful curved Victoria Street (think Diagon Alley). No music, no TV, no fruit machines — just excellent ale and good conversation. The perfect traditional Scottish pub.",
+    tags:["real ale","Victorian","Victoria St"] },
+
+  { id:"sheep-heid", cat:"edi-pubs", name:"The Sheep Heid Inn", hood:"Duddingston Village, Edinburgh",
+    cuisine:"Edinburgh's oldest pub (1360) — has a skittles alley", price:2, walkIn:"Walk-in: yes",
+    summary:"Potentially Scotland's oldest surviving pub. Combine it with the Arthur's Seat hike — it's a 10-minute walk from the base. Has a proper skittles alley. Unbeatable Sunday lunch.",
+    tags:["oldest pub","skittles","Sunday lunch"] },
+];
+
+const HOODS = {
+  london: ["Mayfair","Notting Hill","Chelsea","South Kensington","Bankside","London Bridge","Covent Garden","Marylebone","Hampstead","Farringdon"],
+  edinburgh: ["Old Town","New Town","Royal Mile","Stockbridge","Dean Village","Holyrood Park","Calton Hill","Duddingston"]
+};
+
+const CAT_EMOJI = { restaurants:"🍽", coffee:"☕", pubs:"🍺", landmarks:"🏛" };
+const baseCat = (c) => c.replace("edi-","");
+const byId    = (id) => PLACES.find(p=>p.id===id);
+const ENRICH  = {};
+
+/* ============================================================
+   RENDER CARDS
+   ============================================================ */
+const priceMarkup = (lvl) => lvl ? `${"$".repeat(lvl)}<span class="off">${"$".repeat(4-lvl)}</span>` : "";
+const mapsUrl = (p) => "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(`${p.name} ${p.hood}`);
+
+function cardHTML(p){
+  const base = baseCat(p.cat), emoji = CAT_EMOJI[base];
+  const feature = p.feature ? " feature" : "";
+  const badge = p.badge ? `<div class="thumb-badge${p.badgeRose?" rose":""}">${p.badge}</div>` : "";
+  const chip = p.entry
+    ? `<div class="thumb-chip ${p.entry.startsWith("free")?"free":"paid"}">${p.entry.startsWith("free")?"FREE":"£ "+p.entry.replace(/^paid\s*·?\s*~?£?/,"")}</div>`
+    : (p.price ? `<div class="thumb-chip">${priceMarkup(p.price)}</div>` : "");
+  const cuisine = p.cuisine ? `<p class="cuisine">${p.cuisine}</p>` : "";
+  const tags = (p.tags||[]).slice(0,3).map(t=>`<span class="tag">${t}</span>`).join("");
+  return `
+  <article class="card${feature}" data-id="${p.id}" tabindex="0" role="button" aria-label="${p.name} — view details">
+    <div class="thumb" data-base="${base}">
+      <span class="thumb-emoji" aria-hidden="true">${emoji}</span>
+      ${badge}${chip}
+      <span class="thumb-rating" id="cr-${p.id}"><span class="s">★</span><span class="v"></span></span>
+    </div>
+    <div class="card-body">
+      <span class="label">${p.hood}</span>
+      <h3 class="name">${p.name}</h3>
+      ${cuisine}
+      <div class="card-tags">${tags}</div>
+      <span class="card-more">view details <span class="ar">→</span></span>
+    </div>
+  </article>`;
+}
+
+const GRID_ID = { "restaurants":"grid-restaurants","coffee":"grid-coffee","pubs":"grid-pubs","landmarks":"grid-landmarks",
+  "edi-restaurants":"grid-edi-restaurants","edi-landmarks":"grid-edi-landmarks","edi-coffee":"grid-edi-coffee","edi-pubs":"grid-edi-pubs" };
+Object.keys(GRID_ID).forEach(cat=>{
+  const el = document.getElementById(GRID_ID[cat]);
+  if(el) el.innerHTML = PLACES.filter(p=>p.cat===cat).map(cardHTML).join("");
+});
+
+document.querySelectorAll(".card").forEach(card=>{
+  const id = card.dataset.id;
+  card.addEventListener("click", ()=>openDetail(id));
+  card.addEventListener("keydown", e=>{ if(e.key==="Enter"||e.key===" "){ e.preventDefault(); openDetail(id); } });
+});
+
+function applyCardEnrichment(p){
+  const e = ENRICH[p.id]; if(!e) return;
+  const card = document.querySelector(`.card[data-id="${p.id}"]`); if(!card) return;
+  if(e.photos && e.photos[0]){
+    const thumb = card.querySelector(".thumb");
+    if(!thumb.querySelector("img")){
+      const img = new Image(); img.alt = p.name; img.loading = "lazy";
+      img.onload = ()=>img.classList.add("loaded"); img.src = e.photos[0];
+      thumb.appendChild(img);
+    }
+  }
+  if(e.rating){
+    const r = card.querySelector(`#cr-${p.id}`);
+    r.querySelector(".v").textContent = " " + e.rating.toFixed(1);
+    r.classList.add("on");
+  }
+}
+
+/* ============================================================
+   DETAIL SHEET
+   ============================================================ */
+const modal = document.getElementById("modal");
+const modalCard = document.getElementById("modalCard");
+let lastFocus = null;
+
+function detailHTML(p){
+  const base = baseCat(p.cat), e = ENRICH[p.id] || {}, photos = e.photos || [];
+  const badge = p.badge ? `<div class="m-badge${p.badgeRose?" rose":""}">${p.badge}</div>` : "";
+  const hero = photos[0] ? `<img id="m-hero-img" src="${photos[0]}" alt="${p.name}">` : `<span class="emoji" aria-hidden="true">${CAT_EMOJI[base]}</span>`;
+  const thumbs = photos.length>1
+    ? `<div class="modal-thumbs">${photos.map((u,i)=>`<button data-src="${u}" class="${i===0?"active":""}" aria-label="Photo ${i+1}"><img src="${u}" alt=""></button>`).join("")}</div>` : "";
+  const priceBit = p.price ? `<span class="m-price">${priceMarkup(p.price)}</span>` : "";
+  const entryBit = p.entry
+    ? `<span class="m-entry ${p.entry.startsWith("free")?"free":"paid"}">${p.entry.startsWith("free")?"✦ "+p.entry:"£ "+p.entry.replace(/^paid\s*·?\s*~?£?/,"")}</span>` : "";
+  const ratingBit = e.rating ? `<span class="m-rating"><span class="s">★</span> ${e.rating.toFixed(1)} <span class="c">${e.count?("("+e.count.toLocaleString()+")"):""}</span></span>` : "";
+  const cuisine = p.cuisine ? `<p class="cuisine">${p.cuisine}</p>` : "";
+  const summary = p.summary ? `<p class="summary">${p.summary}</p>` : "";
+  const must = p.mustTry ? `<p class="must"><b>Must-try:</b> ${p.mustTry}</p>` : "";
+  const tip  = p.tip ? `<p class="tip"><b>Tip ·</b> ${p.tip}</p>` : "";
+  const walk = p.walkIn ? `<p class="walk"><b>Walk-in ·</b> ${p.walkIn}</p>` : "";
+  const tags = (p.tags||[]).map(t=>`<span class="tag">${t}</span>`).join("");
+  const actions = [];
+  if(p.bookingUrl) actions.push(`<a class="chip-link solid" href="${p.bookingUrl}" target="_blank" rel="noopener">${p.bookingLabel||"Book"} ↗</a>`);
+  actions.push(`<a class="chip-link" href="${mapsUrl(p)}" target="_blank" rel="noopener">📍 Open in Maps</a>`);
+  return `
+    <div class="modal-hero" data-base="${base}">${hero}${badge}<button class="modal-close" id="modalClose" aria-label="Close">✕</button></div>
+    ${thumbs}
+    <div class="modal-body">
+      <span class="label">${p.hood}</span>
+      <h2 id="m-title">${p.name}</h2>
+      <div class="m-meta-row">${priceBit}${entryBit}${ratingBit}</div>
+      ${cuisine}${summary}${must}${tip}${walk}
+      <div class="modal-tags">${tags}</div>
+      <div class="modal-actions">${actions.join("")}</div>
+    </div>`;
+}
+
+function openDetail(id){
+  const p = byId(id); if(!p) return;
+  lastFocus = document.activeElement;
+  modalCard.innerHTML = detailHTML(p);
+  modalCard.scrollTop = 0;
+  modal.classList.add("open"); modal.setAttribute("aria-hidden","false");
+  document.body.classList.add("locked");
+  document.getElementById("modalClose").addEventListener("click", closeDetail);
+  modalCard.querySelectorAll(".modal-thumbs button").forEach(b=>{
+    b.addEventListener("click",()=>{
+      const img = document.getElementById("m-hero-img");
+      if(img){ img.src = b.dataset.src; img.style.animation="none"; void img.offsetWidth; img.style.animation=""; }
+      modalCard.querySelectorAll(".modal-thumbs button").forEach(x=>x.classList.remove("active"));
+      b.classList.add("active");
+    });
+  });
+  document.getElementById("modalClose").focus();
+}
+function closeDetail(){
+  modal.classList.remove("open"); modal.setAttribute("aria-hidden","true");
+  document.body.classList.remove("locked");
+  if(lastFocus) lastFocus.focus();
+}
+modal.addEventListener("click", e=>{ if(e.target===modal) closeDetail(); });
+document.addEventListener("keydown", e=>{ if(e.key==="Escape" && modal.classList.contains("open")) closeDetail(); });
+
+/* ============================================================
+   VIEW SWITCHING (tabs)
+   ============================================================ */
+const nav = document.getElementById("nav");
+const navBtns = [...nav.querySelectorAll("button")];
+const views = [...document.querySelectorAll(".view")];
+let currentView = "hero";
+
+function showView(name){
+  const target = document.querySelector(`.view[data-view="${name}"]`);
+  if(!target) return;
+  views.forEach(v=>v.classList.toggle("active", v===target));
+  navBtns.forEach(b=>b.classList.toggle("active", b.dataset.view===name));
+  nav.classList.toggle("show", name!=="hero");
+  window.scrollTo({ top:0, behavior:"auto" });
+  currentView = name;
+  if(name==="map") ensureMap();
+}
+navBtns.forEach(b=> b.addEventListener("click", ()=>showView(b.dataset.view)) );
+document.getElementById("openTrip").addEventListener("click", ()=>showView("map"));
+
+/* Edinburgh sub-tabs */
+const ediToggle = document.getElementById("ediToggle");
+const ediPanels = [...document.querySelectorAll(".edi-panel")];
+ediToggle.querySelectorAll("button").forEach(b=>{
+  b.addEventListener("click",()=>{
+    ediToggle.querySelectorAll("button").forEach(x=>x.classList.remove("active"));
+    b.classList.add("active");
+    ediPanels.forEach(p=>p.classList.toggle("active", p.dataset.edi===b.dataset.edi));
+  });
+});
+
+/* ============================================================
+   PETALS
+   ============================================================ */
+(function(){
+  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  const box = document.getElementById("petals");
+  for(let i=0;i<16;i++){
+    const p = document.createElement("span"); p.className="petal";
+    const size = 8 + Math.random()*14;
+    p.style.left = Math.random()*100 + "%";
+    p.style.width = size+"px"; p.style.height = size+"px";
+    p.style.opacity = (0.3 + Math.random()*0.4).toFixed(2);
+    p.style.animationDuration = (9 + Math.random()*11)+"s";
+    p.style.animationDelay = (-Math.random()*12)+"s";
+    box.appendChild(p);
+  }
+})();
+
+/* ============================================================
+   MAP — keyless embed fallback + city toggle
+   ============================================================ */
+const mapFrame = document.getElementById("mapFrame");
+const mapFallback = document.getElementById("mapFallback");
+const hoodsEl = document.getElementById("hoods");
+const mapNote = document.getElementById("mapNote");
+let gmap = null, mapBuilt = false, mapBuilding = false, markerIds = new Set(), pinCache = null, currentCity = "london";
+const CITY_VIEW = {
+  london:    { center:{lat:51.5126,lng:-0.1300}, zoom:12.4, embed:"London%2C+UK&z=12" },
+  edinburgh: { center:{lat:55.9510,lng:-3.1900}, zoom:13,   embed:"Edinburgh%2C+Scotland&z=13" }
+};
+function setCity(city){
+  currentCity = city;
+  hoodsEl.innerHTML = HOODS[city].map(h=>`<span class="hood-chip">${h}</span>`).join("");
+  if(gmap){ gmap.panTo(CITY_VIEW[city].center); gmap.setZoom(CITY_VIEW[city].zoom); }
+  else { mapFallback.src = `https://www.google.com/maps?q=${CITY_VIEW[city].embed}&output=embed`; }
+}
+document.getElementById("mapToggle").querySelectorAll("button").forEach(b=>{
+  b.addEventListener("click",()=>{
+    document.getElementById("mapToggle").querySelectorAll("button").forEach(x=>x.classList.remove("active"));
+    b.classList.add("active"); setCity(b.dataset.city);
+  });
+});
+setCity("london");
+
+/* ============================================================
+   GOOGLE — photos / ratings / blush map with emoji pins
+   ============================================================ */
+const BLUSH_STYLE = [
+  { elementType:"geometry", stylers:[{color:"#FBEDEC"}] },
+  { elementType:"labels.text.fill", stylers:[{color:"#9E8A88"}] },
+  { elementType:"labels.text.stroke", stylers:[{color:"#FFFFFF"},{weight:2}] },
+  { featureType:"administrative", elementType:"geometry", stylers:[{visibility:"off"}] },
+  { featureType:"poi", elementType:"labels", stylers:[{visibility:"off"}] },
+  { featureType:"poi.park", elementType:"geometry", stylers:[{color:"#EDE5D0"}] },
+  { featureType:"landscape.man_made", elementType:"geometry", stylers:[{color:"#F7EAE8"}] },
+  { featureType:"road", elementType:"geometry", stylers:[{color:"#F0D8D5"}] },
+  { featureType:"road", elementType:"geometry.stroke", stylers:[{color:"#FFFFFF"}] },
+  { featureType:"road", elementType:"labels", stylers:[{visibility:"simplified"}] },
+  { featureType:"road.highway", elementType:"geometry", stylers:[{color:"#EAC9C5"}] },
+  { featureType:"transit", stylers:[{visibility:"off"}] },
+  { featureType:"water", elementType:"geometry", stylers:[{color:"#F5E6E4"}] },
+];
+
+let googleReady = false;
+function loadGoogle(key){
+  return new Promise((resolve,reject)=>{
+    if(window.google?.maps?.importLibrary) return resolve();
+    window.__gmReady = resolve;
+    const s = document.createElement("script");
+    s.src = `https://maps.googleapis.com/maps/api/js?key=${encodeURIComponent(key)}&v=weekly&libraries=places,maps&loading=async&callback=__gmReady`;
+    s.async = true; s.onerror = reject; document.head.appendChild(s);
+  });
+}
+
+async function enrichOne(Place, p){
+  try{
+    const { places } = await Place.searchByText({
+      textQuery: `${p.name}, ${p.hood}`,
+      fields: ["location","rating","userRatingCount","photos"],
+      maxResultCount: 1,
+    });
+    if(!places || !places.length) return;
+    const pl = places[0], data = ENRICH[p.id] = {};
+    if(pl.location){ data.lat = pl.location.lat(); data.lng = pl.location.lng(); }
+    if(pl.rating) data.rating = pl.rating;
+    if(pl.userRatingCount) data.count = pl.userRatingCount;
+    if(pl.photos && pl.photos.length) data.photos = pl.photos.slice(0,5).map(ph=>ph.getURI({ maxWidth:1000 }));
+    applyCardEnrichment(p);
+    if(mapBuilt) addMarker(p);
+  }catch(_){ /* skip */ }
+}
+
+function pinIcon(emoji){
+  if(!pinCache){
+    const svg = '<svg xmlns="http://www.w3.org/2000/svg" width="40" height="52" viewBox="0 0 40 52">'+
+      '<path d="M20 2C10 2 2 10 2 19.5 2 33 20 50 20 50s18-17 18-30.5C38 10 30 2 20 2z" fill="#E8C5C1" stroke="#ffffff" stroke-width="2.5"/>'+
+      '<circle cx="20" cy="19" r="12.5" fill="#FFF7F6"/></svg>';
+    pinCache = "data:image/svg+xml;charset=UTF-8,"+encodeURIComponent(svg);
+  }
+  return { url:pinCache, scaledSize:new google.maps.Size(40,52), anchor:new google.maps.Point(20,52), labelOrigin:new google.maps.Point(20,19) };
+}
+
+function addMarker(p){
+  if(markerIds.has(p.id)) return;
+  const e = ENRICH[p.id]; if(!e || e.lat==null) return;
+  const m = new google.maps.Marker({
+    position:{lat:e.lat,lng:e.lng}, map:gmap,
+    icon: pinIcon(), title:p.name,
+    label:{ text: CAT_EMOJI[baseCat(p.cat)], fontSize:"16px" },
+  });
+  m.addListener("click", ()=>openDetail(p.id));
+  markerIds.add(p.id);
+}
+
+async function buildMap(){
+  const { Map } = await google.maps.importLibrary("maps");
+  gmap = new Map(document.getElementById("map-canvas"), {
+    center: CITY_VIEW[currentCity].center, zoom: CITY_VIEW[currentCity].zoom,
+    styles: BLUSH_STYLE, disableDefaultUI:true, zoomControl:true, gestureHandling:"cooperative", clickableIcons:false,
+  });
+  mapBuilt = true; mapFrame.classList.add("live");
+  PLACES.forEach(addMarker);
+}
+
+async function ensureMap(){
+  if(!googleReady || !CONFIG.googleApiKey) return;
+  if(mapBuilt){ google.maps.event.trigger(gmap,"resize"); setCity(currentCity); return; }
+  if(mapBuilding) return;
+  mapBuilding = true;
+  await buildMap();
+  mapBuilding = false;
+}
+
+(async function activateGoogle(){
+  const key = CONFIG.googleApiKey;
+  if(!key){ mapNote.textContent = "Add a Google API key in the code to load live photos, ⭐ ratings and pins."; return; }
+  try{
+    await loadGoogle(key);
+    googleReady = true;
+    if(currentView==="map") ensureMap();
+    const { Place } = await google.maps.importLibrary("places");
+    const batch = 8;
+    for(let i=0;i<PLACES.length;i+=batch){
+      await Promise.allSettled(PLACES.slice(i,i+batch).map(p=>enrichOne(Place,p)));
+    }
+    mapNote.textContent = "Tap any pin to open the place. Photos & ratings are live from Google.";
+  }catch(err){
+    mapNote.textContent = "Couldn't reach Google (check the API key / enabled APIs). The trip still works.";
+  }
+})();
+</script>
+</body>
+</html>
